@@ -18,6 +18,7 @@ namespace http
     TcpServer::~TcpServer()
     {
 		close(this->m_socket);
+		std::cout << "Connection was closed on " << m_socket << std::endl;
     }
 
 	void	TcpServer::startServer( void ) {
