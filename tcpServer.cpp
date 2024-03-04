@@ -11,7 +11,30 @@ namespace http
 			exit(1);
 		}
 
+		/*	startServer: Configure the base structure with data & bind the socket to it */
 		startServer();
+
+		/*	Function will allow to have input connections,
+			limits the connections in the created socket´s listen queue up to 1 */
+		if (listen(m_socket, 1) == -1) {
+			std::perror("Could not create a socket.");
+			exit(1);
+		}
+
+		struct sockaddr_in	address;
+		socklen_t			address_len;
+
+		address_len = sizeof(address);
+		int ret = accept(m_socket,(struct sockaddr *)&address, &address_len);
+		if (ret != -1) {
+			std::cout << "Connection established!" << std::endl << "Congratulations!" << std::endl;
+			exit(1);
+		}
+		else if ( ret == -1) {
+			std::perror("Could not create a socket.");
+			exit(1);
+		}
+
 
 		std::cout << "The code for the socket is: " << this->m_socket << std::endl;
     }
