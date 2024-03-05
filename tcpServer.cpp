@@ -26,7 +26,7 @@ namespace http
 
 		address_len = sizeof(address);
 		int ret = accept(m_socket,(struct sockaddr *)&address, &address_len);
-		if (ret != -1) {
+		if (ret >= 0) {
 			std::cout << "Connection established!" << std::endl << "Congratulations!" << std::endl;
 
 			std::cout << "(Non-formatted)Address of client : " << (address.sin_addr.s_addr) << std::endl;
@@ -35,12 +35,15 @@ namespace http
 			std::cout << "Address of client : " << ntohs(address.sin_addr.s_addr) << std::endl;
 			std::cout << "Port of client : " << ntohs(address.sin_port) << std::endl;
 			
-			close(m_socket);
-			exit(1);
+			char buffer[1024]; // Allocate buffer
+			ssize_t bytes_read;
+			while ((bytes_read = read(ret, buffer, sizeof(buffer))) > 0) {
+				std::cout.write(buffer, bytes_read); // Print what's read
+			}
+			close(ret); // Close accepted socket
 		}
 		else if ( ret == -1) {
 			std::perror("Could not create a socket.");
-			exit(1);
 		}
 
 
