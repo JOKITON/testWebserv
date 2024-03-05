@@ -28,6 +28,14 @@ namespace http
 		int ret = accept(m_socket,(struct sockaddr *)&address, &address_len);
 		if (ret != -1) {
 			std::cout << "Connection established!" << std::endl << "Congratulations!" << std::endl;
+
+			std::cout << "(Non-formatted)Address of client : " << (address.sin_addr.s_addr) << std::endl;
+			std::cout << "(Non-formatted)Port of client : " << (address.sin_port) << std::endl;
+
+			std::cout << "Address of client : " << ntohs(address.sin_addr.s_addr) << std::endl;
+			std::cout << "Port of client : " << ntohs(address.sin_port) << std::endl;
+			
+			close(m_socket);
 			exit(1);
 		}
 		else if ( ret == -1) {
