@@ -18,6 +18,7 @@ namespace http
         ~TcpServer();
     private:
 		void	startServer();
+		int		setConnection ();
 
 		std::string	m_ip_address;
 		int			m_port;
