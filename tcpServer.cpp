@@ -11,7 +11,6 @@ namespace http
 		std::perror("Could not create a socket.");
 		exit(1);
 	}
-	std::cout << "Server socket is : " << m_socket << std::endl;
 
 	setsockopt(m_socket, SOL_SOCKET, SO_REUSEADDR, &opts, sizeof(opts));
 
@@ -27,7 +26,9 @@ namespace http
 
 	m_socketAddress.sin_family = AF_INET;
 	m_socketAddress.sin_port = htons(m_port);
+	std::cout << "Selected port : " << ntohs(m_socketAddress.sin_port) << std::endl;
 	m_socketAddress.sin_addr.s_addr = inet_addr(m_ip_address.c_str());
+	std::cout << "Selected address : " << inet_ntoa(m_socketAddress.sin_addr) << std::endl;
 
 	if (bind(m_socket,(sockaddr *)&m_socketAddress, m_socketAddress_len) < 0)
 	{
@@ -56,7 +57,7 @@ namespace http
 
 void	TcpServer::startServer( void ) {
 
-	fd_set	cSockets, rSockets;
+	fd_set	cSockets, rSockets, wSockets;
 
 	FD_ZERO(&cSockets);
 	FD_SET(m_socket, &cSockets);
@@ -70,10 +71,9 @@ void	TcpServer::startServer( void ) {
 		}
 		std::cout << "Arrived after-select" << std::endl;
 
-		for (int i = 0; i < FD_SETSIZE; i++) { // Check every file descriptor
+		for (int i = 0; i < 83; i++) { // Check every file descriptor
 			if (FD_ISSET(i, &rSockets)) { // True if 'i' has the same file descriptor as 'rSockets'
 				if (i == m_socket) {
-					std::cout << "I : " << i << std::endl;
 					int clientSocket = setConnection();
 					FD_SET(clientSocket, &cSockets);
 				}
@@ -93,19 +93,17 @@ int		TcpServer::setConnection ( void ) {
 		address_len = sizeof(address);
 		int ret = accept(m_socket,(struct sockaddr *)&address, &address_len);
 		if (ret >= 0) {
-			std::cout << "Connection established!" << std::endl << "Congratulations!" << std::endl;
-
-			std::cout << "(Non-formatted)Address of client : " << (address.sin_addr.s_addr) << std::endl;
-			std::cout << "(Non-formatted)Port of client : " << (address.sin_port) << std::endl;
-
-			std::cout << "Address of client : " << ntohs(address.sin_addr.s_addr) << std::endl;
-			std::cout << "Port of client : " << ntohs(address.sin_port) << std::endl;
+			uint16_t nport = ntohs(address.sin_port);
+			std::cout << "Address of client : " << inet_ntoa(address.sin_addr) << std::endl;
+			std::cout << "Port of client : " << nport << std::endl;
 			
 			char buffer[1024]; // Allocate buffer
 			ssize_t bytes_read;
 			while ((bytes_read = read(ret, buffer, sizeof(buffer))) > 0) {
 				std::cout.write(buffer, bytes_read); // Print what's read
 			}
+			std::string response = "HTTP/1.1 200  OK\r\n\r\n <html><head></head><body><h1 text-family=\"Roboto\" align=\"center\"> Hello, Inception42! </h1></body></html>";
+			send(ret, response.data(), response.size(), 0);
 			close(ret); // Close accepted socket
 		}
 		else if ( ret == -1) {

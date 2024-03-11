@@ -21,7 +21,7 @@ namespace http
 		int		setConnection ();
 
 		std::string	m_ip_address;
-		int			m_port;
+		uint16_t			m_port;
 		int			m_socket;
 
 		int			m_new_socket;
